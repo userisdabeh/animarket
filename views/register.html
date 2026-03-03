@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register - DLSU Marketplace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-container">
+    <h2>Register</h2>
+
+    <form onsubmit="return registerUser()">
+        <input type="email" id="registerEmail" placeholder="Email" required>
+        <input type="password" id="registerPassword" placeholder="Password" required>
+        <button type="submit">Register</button>
+    </form>
+
+    <p style="margin-top:15px;">
+        Already have an account?
+        <a href="login.html">Login here</a>
+    </p>
+</div>
+
+<script>
+function registerUser() {
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+
+    localStorage.setItem("email", email);
+    localStorage.setItem("password", password);
+
+    alert("Registration successful! Please login.");
+    window.location.href = "login.html";
+
+    return false;
+}
+</script>
+
+</body>
+</html>
