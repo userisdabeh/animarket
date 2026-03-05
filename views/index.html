@@ -1,11 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome to Animarket</title>
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <title>Community Market</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+    <h2>Community Market</h2>
+    <input type="text" placeholder="Search products...">
+    <div>Login | Register | Cart</div>
+</header>
+
+<nav>
+    <a href="#">Home</a>
+    <a href="#">Categories</a>
+    <a href="#">Local Sellers</a>
+    <a href="#">Deals</a>
+    <a href="#">Contact</a>
+</nav>
+
+<div class="banner">
+    Support Local. Shop Smart. Save More.
+</div>
+
+<section class="products" id="productContainer">
+    <!-- Products will be dynamically inserted here -->
+</section>
+
+<footer>
+    © 2026 Community Market | All Rights Reserved
+</footer>
+
+<script>
+    // ===== FUTURE DATABASE FETCH (API CALL) =====
+    /*
+    fetch("http://localhost/api/getProducts.php")
+        .then(response => response.json())
+        .then(data => {
+            displayProducts(data);
+        })
+        .catch(error => console.error("Error fetching products:", error));
+    */
+
+    // ===== PLACEHOLDER DATA (TEMPORARY) =====
+    const placeholderProducts = [
+        { name: "AOTP LDR LIEGE MAXIMO", price: 3500.00, image: "https://tse3.mm.bing.net/th/id/OIP.3tEdX1c2MsofGUAztwDUOgHaHa?rs=1&pid=ImgDetMain&o=7&rm=3" },
+        { name: "AOTP VOY NEXUS PRIME", price: 2000.00, image: "https://news.tfw2005.com/wp-content/uploads/sites/10/2026/01/AOTP_001.png" },
+        { name: "AOTP DLX BLAST OFF", price: 1500.00, image: "https://takaratomymall.jp/img/goods/5/4904810098904_9c8d47ee595441b18389b2a9262ab887.jpg" },
+        { name: "AOTP CMDR ONSLAUGHT", price: 5000.00, image: "https://bwtf.com/sites/default/files/toyreview-images/generations/Age%20of%20the%20Primes/Onslaught/officialrm.jpg" }
         
-    </body>
+    ];
+
+    function displayProducts(products) {
+        const container = document.getElementById("productContainer");
+        container.innerHTML = "";
+
+        products.forEach(product => {
+            container.innerHTML += `
+                <div class="product-card">
+                    <img src="${product.image}" alt="Product">
+                    <h4>${product.name}</h4>
+                    <div class="price">₱${product.price.toFixed(2)}</div>
+                    <button>Add to Cart</button>
+                </div>
+            `;
+        });
+    }
+
+    // Load placeholder data for now
+    displayProducts(placeholderProducts);
+</script>
+
+</body>
 </html>
