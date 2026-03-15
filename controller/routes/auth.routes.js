@@ -5,7 +5,7 @@ router.get('/', (req, res) => {
     res.render('login', {
         layout: 'main',
         title: 'Login - DLSU Marketplace',
-        stylesheets: ['style.css']
+        stylesheets: ['global.css','style.css']
     });
 });
 
