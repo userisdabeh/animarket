@@ -65,20 +65,8 @@ pool.getConnection((err, connection) => {
 // ==========================================
 // 4. Routes
 // ==========================================
-
-// Home Route
-app.get('/', (req, res) => {
-    // For now, just render the index page
-    // Later, you can query the 'products' table here and pass it to the view
-    res.render('index', {
-        title: 'Animarket | DLSU Taft Exclusive Marketplace'
-    });
-});
-
-// Example placeholder route for login
-app.get('/login', (req, res) => {
-    res.send('Login page coming soon...');
-});
+const authRoutes = require('./controller/routes/auth.routes');
+app.use('/', authRoutes);
 
 // ==========================================
 // 5. Start the Server
