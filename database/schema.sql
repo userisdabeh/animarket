@@ -4,10 +4,10 @@ USE animarket;
 CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,  -- this should be @dlsu.edu.ph domain only
     password VARCHAR(255) NOT NULL,
-    id_number VARCHAR(8) NOT NULL,
-    account_status ENUM('Active', 'Suspended', 'Banned', 'Under Investigation') NOT NULL DEFAULT 'Active',
+    id_number INT NOT NULL UNIQUE, -- for user identification
+    account_status ENUM('Active', 'Suspended', 'Banned', 'Under Investigation', 'Deactivated') NOT NULL DEFAULT 'Active', -- users will not be deleted but will just be marked deactivated
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS products (
     product_name VARCHAR(255) NOT NULL,
     product_description TEXT NOT NULL,
     product_stock INT UNSIGNED NOT NULL,
-    product_limit_per_user INT UNSIGNED NOT NULL,
+    product_limit_per_user INT UNSIGNED DEFAULT NULL, -- main key for anti-scalping feature
     product_price DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -35,6 +35,24 @@ CREATE TABLE IF NOT EXISTS wishlist (
     
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+	order_id INT AUTO_INCREMENT PRIMARY KEY,
+    seller_id INT NOT NULL,
+    buyer_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT UNSIGNED NOT NULL,
+    price_at_purchase DECIMAL(10,2) NOT NULL,
+    total_purchase_price DECIMAL(10,2) NOT NULL,
+    status ENUM('Pending', 'Accepted', 'Completed', 'Cancelled') NOT NULL DEFAULT 'Pending',
+    payment_status ENUM('Paid', 'Unpaid') NOT NULL DEFAULT 'Unpaid',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (seller_id) REFERENCES users(user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (buyer_id) REFERENCES users(user_id) ON DELETE RESTRICT,
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
 );
 
 CREATE TABLE IF NOT EXISTS activity_logs (
