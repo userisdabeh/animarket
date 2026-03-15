@@ -4,12 +4,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{{title}}</title>
-        {{if stylesheets}}
+        {{#if stylesheets}}
             {{#each stylesheets}}
                 <link rel="stylesheet" href="/styles/{{this}}">
             {{/each}}
         {{/if}}
-        {{if scripts}}
+        {{#if scripts}}
             {{#each scripts}}
                 <script src="/src/{{this}}" defer></script>
             {{/each}}
