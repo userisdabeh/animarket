@@ -1,0 +1,58 @@
+<div class="main-content">
+    <div class="form-container">
+        <h2 class="section-header">Sell an Item</h2>
+        
+        <form action="/api/products" method="POST" enctype="multipart/form-data">
+            
+            <div class="form-group">
+                <label for="productName">Item Name</label>
+                <input type="text" id="productName" name="productName" placeholder="e.g. CCS Lanyard, Accounting Book" required>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" name="category" required onchange="enforcePriceCap()">
+                    <option value="" disabled selected>Select a category</option>
+                    <option value="Academic">Academic Materials</option>
+                    <option value="Uniforms">Uniforms</option>
+                    <option value="Merch">Org Merchandise</option>
+                    <option value="Tickets">UAAP Tickets</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Price (₱)</label>
+                <input type="number" id="price" name="price" placeholder="0.00" min="0" step="0.01" required>
+                <small id="priceWarning" style="color: red; display: none;">*Price capped to prevent scalping.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description & Condition</label>
+                <textarea id="description" name="description" rows="4" placeholder="Describe the item's condition..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Post Listing</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Front-end logic to enforce price limits based on your proposal
+    function enforcePriceCap() {
+        const category = document.getElementById("category").value;
+        const priceInput = document.getElementById("price");
+        const warning = document.getElementById("priceWarning");
+
+        if (category === "Tickets") {
+            priceInput.max = "500"; // Example cap for UAAP tickets
+            warning.style.display = "block";
+            warning.innerText = "*UAAP Tickets are strictly capped at ₱500.00 to prevent scalping.";
+            
+            // If they already typed a higher price, bring it down
+            if (priceInput.value > 500) priceInput.value = 500;
+        } else {
+            priceInput.removeAttribute("max");
+            warning.style.display = "none";
+        }
+    }
+</script>
