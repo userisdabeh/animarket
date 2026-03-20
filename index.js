@@ -66,7 +66,12 @@ pool.getConnection((err, connection) => {
 // 4. Routes
 // ==========================================
 const authRoutes = require('./controller/routes/auth.routes');
+const userRoutes = require('./controller/routes/users.routes');
+const adminRoutes = require('./controller/routes/admin.routes');
+
 app.use('/', authRoutes);
+app.use('/user', userRoutes);
+app.use('/admin', adminRoutes);
 
 // ==========================================
 // 5. Start the Server
