@@ -13,3 +13,8 @@
     --dlsu-light-green: #00a651;
     --dlsu-gold: #f8b400;
 }
+
+a {
+    color: inherit;
+    text-decoration: none;
+}

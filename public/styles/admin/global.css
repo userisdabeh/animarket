@@ -1,0 +1,83 @@
+body {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: start;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav {
+    background-color: darkgreen;
+    color: white;
+    width: 12%;
+    height: 100vh;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: fixed;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.nav-link {
+    border-radius: 4px;
+}
+
+.nav-link a {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+}
+
+.nav-link a svg,
+.logout-btn svg {
+    display: block;
+    fill: white;
+}
+
+.nav-link:hover {
+    background-color: lightgreen;
+    color: black;
+}
+
+.nav-link:hover .nav-link-icon {
+    fill: black;
+}
+
+.active {
+    background-color: lightgreen;
+    color: black;
+}
+
+.active .nav-link-icon {
+    fill: black;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    background-color: darkgreen;
+    color: white;
+    border: 1px solid white;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+main {
+    width: 90%;
+    min-height: 100vh;
+    margin-left: 12%;
+    padding: 24px;
+}
