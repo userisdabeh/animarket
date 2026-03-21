@@ -37,6 +37,23 @@ router.get('/register', (req, res) => {
     });
 });
 
+
+// --- LOGOUT ROUTE ---
+router.get('/logout', (req, res) => {
+    // 1. Destroy the session in the server memory
+    req.session.destroy((err) => {
+        if (err) {
+            console.error("Error destroying session:", err);
+            return res.redirect('/'); // Just send them home if something fails
+        }
+        
+        // 2. Clear the cookie out of the user's browser
+        res.clearCookie('connect.sid'); 
+        
+        // 3. Kick them back to the Home Page seamlessly
+        res.redirect('/'); 
+    });
+});
 // Handle Form Submissions
 router.use('/register', registerLogic);
 router.use('/login', loginLogic);

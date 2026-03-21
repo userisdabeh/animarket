@@ -4,6 +4,9 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{{title}}</title>
+        
+        <link rel="stylesheet" href="/style.css">
+        
         {{#if stylesheets}}
             {{#each stylesheets}}
                 <link rel="stylesheet" href="/styles/{{this}}">
@@ -16,6 +19,36 @@
         {{/if}}
     </head>
     <body>
+        
+        <header class="top-bar">
+            <div class="nav-container">
+                <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'">🏹 Animarket</div>
+                
+                <div class="search-container">
+                    <input type="text" placeholder="Search for products, sellers, or DLSU merch...">
+                    <button type="button" class="btn-search">Search</button>
+                </div>
+                
+                <div class="user-actions">
+                    {{#if user}}
+                        <span class="nav-link">Hi, <strong>{{user.username}}</strong>!</span>
+                        <a href="/wishlist" class="nav-link">Wishlist</a>
+                        <a href="/logout" class="nav-link">Logout</a>
+                    {{else}}
+                        <a href="/login" class="nav-link">Login</a>
+                        <a href="/register" class="nav-link">Sign Up</a>
+                    {{/if}}
+                </div>
+            </div>
+        </header>
+
         {{{body}}}
+        
+        <footer class="site-footer">
+            <div class="footer-content">
+                <p>&copy; 2026 Animarket. DLSU Taft Campus Exclusive.</p>
+            </div>
+        </footer>
+
     </body>
 </html>

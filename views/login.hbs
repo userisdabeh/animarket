@@ -1,9 +1,23 @@
 <div class="auth-container">
     <h2>Login</h2>
 
-    <form onsubmit="return loginUser()">
-        <input type="email" id="loginEmail" placeholder="Email" required>
-        <input type="password" id="loginPassword" placeholder="Password" required>
+    {{#if successMessage}}
+        <div class="success-banner" style="color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;">
+            {{successMessage}}
+        </div>
+    {{/if}}
+
+    {{#if errorMessage}}
+        <div class="error-banner" style="color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;">
+            <strong>Error:</strong> {{errorMessage}}
+        </div>
+    {{/if}}
+
+    <form action="/login" method="POST">
+        <input type="email" name="email" id="email" placeholder="Email" required>
+        
+        <input type="password" name="password" id="password" placeholder="Password" required>
+        
         <button type="submit">Login</button>
     </form>
 
@@ -12,21 +26,3 @@
         <a href="/register">Register here</a>
     </p>
 </div>
-
-<script>
-function loginUser() {
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-
-    const storedEmail = localStorage.getItem("email");
-    const storedPassword = localStorage.getItem("password");
-
-    if (email === storedEmail && password === storedPassword) {
-        window.location.href = "/index"; // Redirect changed
-    } else {
-        alert("Invalid credentials.");
-    }
-
-    return false;
-}
-</script>
