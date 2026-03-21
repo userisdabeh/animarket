@@ -45,8 +45,14 @@
                     </div>
                     <div class="product-footer">
                         <span class="stock">Stock: {{this.product_stock}}</span> 
-                        <button class="btn-wishlist">Add</button>
-                    </div>
+                        
+                        <form action="/buy" method="POST" style="display:inline;">
+                            <input type="hidden" name="productId" value="{{this.product_id}}">
+                            <button type="submit" class="btn-wishlist">
+                                <i class="fas fa-cart-plus"></i> Buy
+                            </button>
+                        </form> 
+                        </div>
                 </div>
             </article>
             {{else}}
