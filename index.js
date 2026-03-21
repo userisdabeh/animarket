@@ -40,15 +40,36 @@ app.use(session({
 }));
 
 // ==========================================
+// NEW: Global Variables for Handlebars
+// ==========================================
+app.use((req, res, next) => {
+    // If a user is logged in, pass their data to 'res.locals.user'
+    // Anything in res.locals is automatically visible to EVERY .hbs file!
+    if (req.session.userId) {
+        res.locals.user = {
+            id: req.session.userId,
+            username: req.session.username,
+            email: req.session.email
+        };
+    } else {
+        res.locals.user = null;
+    }
+    next(); // Tell Express to move on to the next step
+});
+
+// ==========================================
 // 3. Database Connection (MySQL)
 // ==========================================
 const pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
     database: process.env.DB_NAME || 'animarket',
     waitForConnections: true,
     connectionLimit: 10,
+    
+    password: process.env.DB_PASSWORD || '1234', // enzo password
+    port: process.env.DB_PORT || 3307,           // enzo port
+
     queueLimit: 0
 });
 
