@@ -6,7 +6,7 @@ const router = express.Router();
 const registerLogic = require('./register.route');
 const loginLogic = require('./login.route');
 
-// Homepage (Marketplace Feed)
+/*// Homepage (Marketplace Feed)
 router.get('/', (req, res) => {
     res.render('index', {
         layout: 'main',
@@ -14,6 +14,7 @@ router.get('/', (req, res) => {
         stylesheets: ['global.css', 'style.css']
     });
 });
+*/
 
 // Login Page
 router.get('/login', (req, res) => {

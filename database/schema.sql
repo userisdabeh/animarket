@@ -13,12 +13,14 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS products (
-	product_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
     seller_id INT NOT NULL,
     product_name VARCHAR(255) NOT NULL,
+    product_category VARCHAR(50) NOT NULL, -- ADDED FOR FILTERING
     product_description TEXT NOT NULL,
+    product_image LONGTEXT,                -- ADDED FOR BASE64 IMAGES
     product_stock INT UNSIGNED NOT NULL,
-    product_limit_per_user INT UNSIGNED DEFAULT NULL, -- main key for anti-scalping feature
+    product_limit_per_user INT UNSIGNED DEFAULT NULL, 
     product_price DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

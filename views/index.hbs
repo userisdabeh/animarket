@@ -1,3 +1,19 @@
+<div class="container mb-4 mt-3">
+    <div class="search-container bg-white p-3 rounded shadow-sm border">
+        <form action="/" method="GET" class="d-flex w-100">
+            <input type="text" name="search" class="form-control" value="{{searchQuery}}" placeholder="Search products, DLSU merch, or books...">
+            <select name="category" class="form-select w-auto mx-2">
+                <option value="">All Categories</option>
+                <option value="Academic">Academic</option>
+                <option value="Uniforms">Uniforms</option>
+                <option value="Merch">Merch</option>
+                <option value="Tickets">Tickets</option>
+            </select>
+            <button type="submit" class="btn btn-success px-4 fw-bold">Search</button>
+        </form>
+    </div>
+</div>
+
 <main class="main-content">
     <section class="hero-banner">
         <div class="banner-content">
@@ -12,41 +28,30 @@
         </div>
         
         <div class="product-grid">
-            
+            {{#each products}}
             <article class="product-card">
                 <div class="product-image">
-                    <div class="img-placeholder">Image</div>
+                    {{#if this.product_image}}
+                        <img src="{{this.product_image}}" alt="{{this.product_name}}" style="width: 100%; height: 200px; object-fit: cover;">
+                    {{else}}
+                        <div class="img-placeholder">No Image</div>
+                    {{/if}}
                 </div>
                 <div class="product-info">
-                    <h4 class="product-title">DLSU Lanyard 2026</h4>
+                    <h4 class="product-title">{{this.product_name}}</h4>
                     <div class="product-price">
                         <span class="currency">₱</span>
-                        <span class="price-amount">150.00</span>
+                        <span class="price-amount">{{this.product_price}}</span>
                     </div>
                     <div class="product-footer">
-                        <span class="stock">Stock: 25</span> 
+                        <span class="stock">Stock: {{this.product_stock}}</span> 
                         <button class="btn-wishlist">Add</button>
                     </div>
                 </div>
             </article>
-
-            <article class="product-card">
-                <div class="product-image">
-                    <div class="img-placeholder">Image</div>
-                </div>
-                <div class="product-info">
-                    <h4 class="product-title">Pre-loved Accounting Book</h4>
-                    <div class="product-price">
-                        <span class="currency">₱</span>
-                        <span class="price-amount">450.00</span>
-                    </div>
-                    <div class="product-footer">
-                        <span class="stock">Stock: 1</span>
-                        <button class="btn-wishlist"> Add</button>
-                    </div>
-                </div>
-            </article>
-
+            {{else}}
+            <p style="text-align: center; width: 100%;">No products found matching your search.</p>
+            {{/each}}
         </div>
     </section>
 </main>

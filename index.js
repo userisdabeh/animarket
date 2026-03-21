@@ -26,10 +26,16 @@ app.set('views', path.join(__dirname, 'views'));
 // Serve static files (CSS, images, client-side JS) from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
+/*
 // Parse URL-encoded bodies (as sent by HTML forms)
 app.use(express.urlencoded({ extended: true }));
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
+*/
+
+// Change these two lines:
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 // Setup session management for logging in users
 app.use(session({
@@ -89,10 +95,12 @@ pool.getConnection((err, connection) => {
 const authRoutes = require('./controller/routes/auth.routes');
 const userRoutes = require('./controller/routes/users.routes');
 const adminRoutes = require('./controller/routes/admin.routes');
+const productRoutes = require('./controller/routes/products.route');
 
 app.use('/', authRoutes);
 app.use('/user', userRoutes);
 app.use('/admin', adminRoutes);
+app.use('/', productRoutes); // Connect dynamic marketplace
 
 // ==========================================
 // 5. Start the Server

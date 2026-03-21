@@ -5,50 +5,39 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>{{title}}</title>
         
-        <link rel="stylesheet" href="/style.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
         
         {{#if stylesheets}}
             {{#each stylesheets}}
                 <link rel="stylesheet" href="/styles/{{this}}">
             {{/each}}
         {{/if}}
-        {{#if scripts}}
-            {{#each scripts}}
-                <script src="/src/{{this}}" defer></script>
-            {{/each}}
-        {{/if}}
     </head>
-    <body>
+    <body class="bg-light">
         
-        <header class="top-bar">
-            <div class="nav-container">
-                <div class="logo" style="cursor: pointer;" onclick="window.location.href='/'">🏹 Animarket</div>
-                
-                <div class="search-container">
-                    <input type="text" placeholder="Search for products, sellers, or DLSU merch...">
-                    <button type="button" class="btn-search">Search</button>
+        <header class="top-bar bg-white py-3 border-bottom mb-4 shadow-sm">
+            <div class="container d-flex justify-content-between align-items-center">
+                <div class="logo">
+                    <a href="/" class="text-success text-decoration-none fs-4 fw-bold">🏹 Animarket</a>
                 </div>
-                
-                <div class="user-actions">
+
+                <div class="user-actions d-flex align-items-center gap-3">
                     {{#if user}}
-                        <span class="nav-link">Hi, <strong>{{user.username}}</strong>!</span>
-                        <a href="/wishlist" class="nav-link">Wishlist</a>
-                        <a href="/logout" class="nav-link">Logout</a>
+                        <a href="/user/sell" class="btn btn-success fw-bold shadow-sm">+ Post Item</a>
+                        <span class="text-muted fw-semibold">Hi, {{user.username}}</span>
+                        <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
                     {{else}}
-                        <a href="/login" class="nav-link">Login</a>
-                        <a href="/register" class="nav-link">Sign Up</a>
+                        <a href="/login" class="text-decoration-none text-dark fw-semibold">Login</a>
+                        <a href="/register" class="btn btn-primary shadow-sm">Sign Up</a>
                     {{/if}}
                 </div>
             </div>
         </header>
 
-        {{{body}}}
+        <main class="container">
+            {{{body}}}
+        </main>
         
-        <footer class="site-footer">
-            <div class="footer-content">
-                <p>&copy; 2026 Animarket. DLSU Taft Campus Exclusive.</p>
-            </div>
-        </footer>
-
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
