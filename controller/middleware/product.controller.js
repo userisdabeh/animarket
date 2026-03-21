@@ -85,50 +85,38 @@ exports.buyProduct = async (req, res) => {
     const { productId } = req.body;
     const buyerId = req.session.userId;
 
-    // Security check: must be logged in to buy
-    if (!buyerId) {
-        return res.redirect('/login?error=Please login to purchase items');
-    }
+    if (!buyerId) return res.redirect('/login?error=Please login');
 
     try {
-        // 1. Get the current product details
-        const [products] = await db.query(
-            'SELECT seller_id, product_price, product_stock FROM products WHERE product_id = ?', 
-            [productId]
-        );
+        const [products] = await db.query('SELECT seller_id, product_price, product_stock FROM products WHERE product_id = ?', [productId]);
         const product = products[0];
 
-        // Check if item exists and is still in stock
-        if (!product || product.product_stock <= 0) {
-            return res.status(400).send("Sorry, this item is no longer available.");
-        }
+        if (!product || product.product_stock <= 0) return res.status(400).send("Out of stock");
 
-        // 2. INSERT into the orders table
-        const orderQuery = `
-            INSERT INTO orders 
-            (seller_id, buyer_id, product_id, quantity, price_at_purchase, total_purchase_price, status) 
-            VALUES (?, ?, ?, 1, ?, ?, 'Pending')
-        `;
-        
-        await db.query(orderQuery, [
-            product.seller_id, 
-            buyerId, 
-            productId, 
-            product.product_price, 
-            product.product_price
-        ]);
-
-        // 3. Update the product stock
-        await db.query(
-            'UPDATE products SET product_stock = product_stock - 1 WHERE product_id = ?', 
-            [productId]
+        // CHECK: Does item already exist in cart?
+        const [existing] = await db.query(
+            'SELECT order_id, quantity FROM orders WHERE buyer_id = ? AND product_id = ? AND status = "Pending"',
+            [buyerId, productId]
         );
 
-        // 4. Success! Redirect to cart
-        res.redirect('/user/cart');
+        if (existing.length > 0) {
+            // Update quantity of the EXISTING box
+            await db.query(
+                'UPDATE orders SET quantity = quantity + 1, total_purchase_price = (quantity + 1) * ? WHERE order_id = ?',
+                [product.product_price, existing[0].order_id]
+            );
+        } else {
+            // Create a NEW box only if it's not there yet
+            await db.query(
+                `INSERT INTO orders (seller_id, buyer_id, product_id, quantity, price_at_purchase, total_purchase_price, status) 
+                 VALUES (?, ?, ?, 1, ?, ?, 'Pending')`,
+                [product.seller_id, buyerId, productId, product.product_price, product.product_price]
+            );
+        }
 
+        await db.query('UPDATE products SET product_stock = product_stock - 1 WHERE product_id = ?', [productId]);
+        res.redirect('/user/cart');
     } catch (error) {
-        console.error("Purchase Error:", error);
-        res.status(500).send("There was an error processing your reservation.");
+        res.status(500).send("Error");
     }
 };
