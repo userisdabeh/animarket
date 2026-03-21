@@ -1,0 +1,40 @@
+<main class="main-content">
+    <section class="container" style="padding: 20px; max-width: 800px; margin: 0 auto;">
+        <h2 class="section-header" style="border-bottom: 2px solid #006a4e; padding-bottom: 10px; color: #006a4e;">
+            Your Purchase History
+        </h2>
+
+        <div class="cart-list" style="margin-top: 20px;">
+            {{#each orders}}
+                <div class="cart-item" style="background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <div class="item-details">
+                        <h3 style="margin: 0 0 5px 0; color: #333;">{{this.product_name}}</h3>
+                        <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                            Price at Purchase: ₱{{this.price_at_purchase}} | Quantity: {{this.quantity}}
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #999;">
+                            Ordered on: {{this.created_at}}
+                        </p>
+                    </div>
+                    
+                    <div class="item-status" style="text-align: right;">
+                        <div style="font-size: 1.2rem; font-weight: bold; color: #006a4e; margin-bottom: 5px;">
+                            ₱{{this.total_purchase_price}}
+                        </div>
+                        <span style="padding: 4px 12px; border-radius: 20px; background: #e8f5e9; color: #006a4e; font-size: 0.8rem; font-weight: bold; border: 1px solid #006a4e;">
+                            {{this.status}}
+                        </span>
+                    </div>
+                </div>
+            {{else}}
+                <div style="text-align: center; padding: 50px 20px; background: #f9f9f9; border-radius: 8px; border: 2px dashed #ddd;">
+                    <p style="font-size: 1.2rem; color: #666;">Your cart is empty!</p>
+                    <p style="color: #999;">You haven't reserved or bought any items yet.</p>
+                    <a href="/" class="btn-search" style="display: inline-block; margin-top: 15px; text-decoration: none; background: #006a4e; color: white; padding: 10px 25px; border-radius: 5px;">
+                        Back to Shop
+                    </a>
+                </div>
+            {{/each}}
+        </div>
+    </section>
+</main>
