@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(255) NOT NULL,
     id_number INT NOT NULL UNIQUE, -- for user identification
     account_status ENUM('Active', 'Suspended', 'Banned', 'Under Investigation', 'Deactivated') NOT NULL DEFAULT 'Active', -- users will not be deleted but will just be marked deactivated
+    role ENUM('User', 'Admin') NOT NULL DEFAULT 'User',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
