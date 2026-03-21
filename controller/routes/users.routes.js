@@ -10,4 +10,12 @@ router.get('/sell', (req, res) => {
     });
 });
 
+router.get('/cart', (req, res) => {
+    res.render('cart', {
+        layout: 'main',
+        title: 'Your Cart - Animarket',
+        stylesheets: ['global.css', 'style.css']
+    });
+});
+
 module.exports = router;
