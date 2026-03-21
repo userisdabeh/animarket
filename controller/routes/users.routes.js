@@ -1,6 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const nodemailer = require('nodemailer'); 
+
+// ==========================================
+// FIX: Force this file to load the .env variables (Inspired by your friend's code!)
+require('dotenv').config(); 
+// ==========================================
+
+// Create the Email Transporter using your .env credentials
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 // 1. Render Sell Page
 router.get('/sell', (req, res) => {
@@ -80,7 +95,7 @@ router.post('/cart/update-quantity', async (req, res) => {
     }
 });
 
-// 4. Handle Final Checkout
+// 4. Handle Final Checkout & Send Digital Receipt
 router.post('/cart/checkout', async (req, res) => {
     const { orderId } = req.body;
     const userId = req.session.userId;
@@ -88,10 +103,63 @@ router.post('/cart/checkout', async (req, res) => {
     if (!userId) return res.redirect('/login');
 
     try {
+        // Step 1: Fetch order details AND the buyer's email from the database
+        const [orderData] = await db.query(`
+            SELECT o.*, p.product_name, u.email as buyer_email, u.username 
+            FROM orders o
+            JOIN products p ON o.product_id = p.product_id
+            JOIN users u ON o.buyer_id = u.user_id
+            WHERE o.order_id = ? AND o.buyer_id = ?
+        `, [orderId, userId]);
+
+        if (!orderData.length) return res.redirect('/user/cart');
+        const order = orderData[0];
+
+        // Step 2: Mark the order as Completed
         await db.query('UPDATE orders SET status = "Completed" WHERE order_id = ? AND buyer_id = ?', [orderId, userId]);
+
+        // Step 3: Draft the Email Receipt
+        const mailOptions = {
+            from: `"Animarket" <${process.env.EMAIL_USER}>`,
+            to: order.buyer_email,
+            subject: `Animarket Digital Receipt - ${order.product_name} 🧾`,
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px; max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+                    <div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #006a4e;">
+                        <h2 style="color: #006a4e; margin: 0;">Thank you for your purchase, ${order.username}!</h2>
+                    </div>
+                    
+                    <p style="color: #333; font-size: 16px; margin-top: 20px;">Here is your digital receipt for your recent transaction on Animarket:</p>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+                        <tr style="background-color: #f8f9fa; border-bottom: 2px solid #006a4e;">
+                            <th style="padding: 12px; text-align: left; color: #333;">Item</th>
+                            <th style="padding: 12px; text-align: center; color: #333;">Qty</th>
+                            <th style="padding: 12px; text-align: right; color: #333;">Total Price</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #555;"><strong>${order.product_name}</strong></td>
+                            <td style="padding: 15px; text-align: center; border-bottom: 1px solid #eee; color: #555;">${order.quantity}</td>
+                            <td style="padding: 15px; text-align: right; border-bottom: 1px solid #eee; font-weight: bold; color: #006a4e; font-size: 16px;">₱${order.total_purchase_price}</td>
+                        </tr>
+                    </table>
+
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
+                        <p style="font-size: 14px; color: #666; margin: 5px 0;">Please coordinate with the seller to arrange your meetup on campus.</p>
+                        <p style="font-size: 14px; color: #006a4e; font-weight: bold; margin: 5px 0;">Animo La Salle! 🏹</p>
+                    </div>
+                </div>
+            `
+        };
+
+        // Step 4: Send the Email (using your friend's exact tracking method)
+        console.log(`Attempting to send digital receipt to: ${order.buyer_email}...`);
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Success! Receipt sent. Message ID: ${info.messageId}`);
+
         res.redirect('/user/cart');
     } catch (error) {
-        console.error("Checkout error:", error);
+        console.error("Checkout/Email error:", error);
         res.redirect('/user/cart?error=fail');
     }
 });
