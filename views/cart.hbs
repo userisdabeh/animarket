@@ -1,38 +1,57 @@
 <main class="main-content">
     <section class="container" style="padding: 20px; max-width: 800px; margin: 0 auto;">
         <h2 class="section-header" style="border-bottom: 2px solid #006a4e; padding-bottom: 10px; color: #006a4e;">
-            Your Purchase History
+            Your Cart & Purchase History
         </h2>
 
         <div class="cart-list" style="margin-top: 20px;">
             {{#each orders}}
                 <div class="cart-item" style="background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
                     <div class="item-details">
-                        <h3 style="margin: 0 0 5px 0; color: #333;">{{this.product_name}}</h3>
-                        <p style="margin: 0; color: #666; font-size: 0.9rem;">
-                            Price at Purchase: ₱{{this.price_at_purchase}} | Quantity: {{this.quantity}}
-                        </p>
-                        <p style="margin: 5px 0 0 0; font-size: 0.8rem; color: #999;">
-                            Ordered on: {{this.created_at}}
-                        </p>
+                        <h3 style="margin: 0; color: #333;">{{this.product_name}}</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Unit Price: ₱{{this.price_at_purchase}}</p>
                     </div>
-                    
-                    <div class="item-status" style="text-align: right;">
-                        <div style="font-size: 1.2rem; font-weight: bold; color: #006a4e; margin-bottom: 5px;">
+
+                    <div class="item-controls" style="display: flex; align-items: center; gap: 20px;">
+                        {{#if this.isPending}}
+                            <div style="display: flex; align-items: center; border: 1px solid #006a4e; border-radius: 4px; overflow: hidden; background: #fff;">
+                                <form action="/user/cart/update-quantity" method="POST" style="margin:0;">
+                                    <input type="hidden" name="orderId" value="{{this.order_id}}">
+                                    <input type="hidden" name="productId" value="{{this.product_id}}">
+                                    <input type="hidden" name="action" value="subtract">
+                                    <button type="submit" style="padding: 8px 15px; background: #f8f9fa; border:none; border-right: 1px solid #006a4e; cursor:pointer; font-weight: bold;">−</button>
+                                </form>
+                                
+                                <span style="padding: 0 20px; font-weight: bold; min-width: 30px; text-align: center;">{{this.quantity}}</span>
+
+                                <form action="/user/cart/update-quantity" method="POST" style="margin:0;">
+                                    <input type="hidden" name="orderId" value="{{this.order_id}}">
+                                    <input type="hidden" name="productId" value="{{this.product_id}}">
+                                    <input type="hidden" name="action" value="add">
+                                    <button type="submit" style="padding: 8px 15px; background: #f8f9fa; border:none; border-left: 1px solid #006a4e; cursor:pointer; font-weight: bold;">+</button>
+                                </form>
+                            </div>
+                            
+                            <form action="/user/cart/checkout" method="POST" style="margin: 0;">
+                                <input type="hidden" name="orderId" value="{{this.order_id}}">
+                                <button type="submit" class="btn btn-success" style="padding: 8px 15px; font-size: 0.85rem;">Confirm</button>
+                            </form>
+                        {{else}}
+                            <div style="text-align: right;">
+                                <p style="margin:0; font-weight:bold;">Qty: {{this.quantity}}</p>
+                                <span style="font-size: 0.75rem; color: #006a4e; font-weight: bold; border: 1px solid #006a4e; padding: 2px 8px; border-radius: 10px;">{{this.status}}</span>
+                            </div>
+                        {{/if}}
+
+                        <div style="font-size: 1.2rem; font-weight: bold; color: #006a4e; min-width: 100px; text-align: right;">
                             ₱{{this.total_purchase_price}}
                         </div>
-                        <span style="padding: 4px 12px; border-radius: 20px; background: #e8f5e9; color: #006a4e; font-size: 0.8rem; font-weight: bold; border: 1px solid #006a4e;">
-                            {{this.status}}
-                        </span>
                     </div>
                 </div>
             {{else}}
-                <div style="text-align: center; padding: 50px 20px; background: #f9f9f9; border-radius: 8px; border: 2px dashed #ddd;">
-                    <p style="font-size: 1.2rem; color: #666;">Your cart is empty!</p>
-                    <p style="color: #999;">You haven't reserved or bought any items yet.</p>
-                    <a href="/" class="btn-search" style="display: inline-block; margin-top: 15px; text-decoration: none; background: #006a4e; color: white; padding: 10px 25px; border-radius: 5px;">
-                        Back to Shop
-                    </a>
+                <div style="text-align: center; padding: 60px 20px; border: 2px dashed #ccc; border-radius: 8px;">
+                    <p style="color: #666; font-size: 1.1rem;">Your cart is currently empty.</p>
+                    <a href="/" class="btn btn-success" style="margin-top: 15px; display: inline-block; text-decoration: none;">Start Shopping</a>
                 </div>
             {{/each}}
         </div>
