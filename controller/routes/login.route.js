@@ -7,28 +7,19 @@ router.post('/', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // 1. Get the RAW result. We are NOT destructuring it with [rows] this time.
+        // 1. Get the RAW result
         const rawResult = await pool.execute('SELECT * FROM users WHERE email = ?', [email]);
         
-        // Let's print exactly what MySQL is doing to your data
-        console.log("\n--- RAW DATABASE REPLY ---");
-        console.log(JSON.stringify(rawResult, null, 2).substring(0, 300) + "... [TRUNCATED]");
-        console.log("--------------------------\n");
-
         // 2. THE NUCLEAR OPTION: A recursive function that digs through anything
         function findUserTarget(data) {
             if (!data) return null;
-            
-            // If it's an array, search every item inside it
             if (Array.isArray(data)) {
                 for (let item of data) {
                     const found = findUserTarget(item);
                     if (found) return found;
                 }
             } 
-            // If it's an object, check if it's our actual user!
             else if (typeof data === 'object' && data !== null) {
-                // If this object has a password and email, WE CAUGHT IT.
                 if (data.email && data.password) {
                     return data;
                 }
@@ -42,7 +33,6 @@ router.post('/', async (req, res) => {
 
         // 4. If the missile found nothing, the email truly isn't in the DB
         if (!user) {
-            console.log("--> MISSILE FAILED: No user found for that email.");
             return res.render('login', { 
                 layout: 'main', 
                 stylesheets: ['global.css', 'style.css'],
@@ -50,12 +40,23 @@ router.post('/', async (req, res) => {
             });
         }
 
-        console.log("SUCCESS! FOUND USER:", user.email, "| HASH:", user.password);
-
         // 5. Compare the typed password against the DB hash
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
+            // ==========================================
+            // NEW: IS THE USER VERIFIED?
+            // ==========================================
+            // MySQL stores booleans as 0 (false) and 1 (true)
+            if (user.is_verified === 0 || user.is_verified === false) {
+                return res.render('login', {
+                    layout: 'main',
+                    stylesheets: ['global.css', 'style.css'],
+                    errorMessage: 'Please check your DLSU email and click the verification link before logging in.'
+                });
+            }
+
+            // 6. If verified AND password matches, log them in!
             req.session.userId = user.user_id; 
             req.session.email = user.email;
             req.session.username = user.username;

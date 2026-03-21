@@ -97,10 +97,20 @@ const userRoutes = require('./controller/routes/users.routes');
 const adminRoutes = require('./controller/routes/admin.routes');
 const productRoutes = require('./controller/routes/products.route');
 
+// NEW: Separated Authentication Routes
+const registerRouter = require('./controller/routes/register.route');
+const loginRouter = require('./controller/routes/login.route');
+const verifyRouter = require('./controller/routes/verify.route');
+
 app.use('/', authRoutes);
 app.use('/user', userRoutes);
 app.use('/admin', adminRoutes);
 app.use('/', productRoutes); // Connect dynamic marketplace
+
+// NEW: Connect the separated Authentication Routes
+app.use('/register', registerRouter);
+app.use('/login', loginRouter);
+app.use('/verify', verifyRouter);
 
 // ==========================================
 // 5. Start the Server

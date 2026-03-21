@@ -8,16 +8,83 @@
     {{/if}}
 
     <form action="/register" method="POST">
-    <input type="text" name="username" placeholder="Full Name" required>
-    <input type="number" name="id_number" placeholder="DLSU ID Number (e.g. 12345678)" required>
-    <input type="email" name="email" placeholder="DLSU Email" required>
-    <input type="password" name="password" placeholder="Password" required>
+        <input type="text" name="username" placeholder="Full Name" required>
+        <input type="number" name="id_number" placeholder="DLSU ID Number (e.g. 12345678)" required>
+        <input type="email" name="email" placeholder="DLSU Email" required>
+        <input type="password" name="password" placeholder="Password" required>
 
-    <button type="submit">Register</button>
-</form>
+        <button type="submit">Register</button>
+    </form>
 
     <p style="margin-top:15px;">
         Already have an account?
         <a href="/login">Login here</a>
     </p>
 </div>
+
+{{!-- ========================================== --}}
+{{!-- VERIFICATION MODAL --}}
+{{!-- ========================================== --}}
+{{#if showVerificationModal}}
+<div id="verifyModal" class="modal-overlay">
+    <div class="modal-box">
+        <h2>Check Your Inbox! 📧</h2>
+        <p>We've successfully created your account, but you're not done yet.</p>
+        <p>We sent a verification link to <strong>{{registeredEmail}}</strong>.</p>
+        <p class="modal-warning">Please click the link in that email to activate your account before logging in.</p>
+        
+        <button class="modal-btn" onclick="closeModal()">Got it, take me to Login!</button>
+    </div>
+</div>
+
+<style>
+    /* Modal Styling */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+    .modal-box {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 450px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .modal-box h2 { margin-top: 0; color: #2c3e50; }
+    .modal-box p { color: #555; line-height: 1.5; margin-bottom: 15px; }
+    .modal-warning { font-size: 0.9em; color: #d35400; font-weight: bold; }
+    .modal-btn {
+        margin-top: 10px;
+        padding: 12px 24px;
+        background-color: #0066cc;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .modal-btn:hover { background-color: #0052a3; }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
+</style>
+
+<script>
+    // When they click the button, close the modal and redirect to login
+    function closeModal() {
+        document.getElementById('verifyModal').style.display = 'none';
+        window.location.href = '/login'; 
+    }
+</script>
+{{/if}}

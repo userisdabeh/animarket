@@ -22,7 +22,8 @@
     "express": "^5.2.1",
     "express-hbs": "^2.5.0",
     "express-session": "^1.19.0",
-    "mysql2": "^3.18.2"
+    "mysql2": "^3.18.2",
+    "nodemailer": "^8.0.3"
   },
   "devDependencies": {
     "dotenv": "^17.3.1",
