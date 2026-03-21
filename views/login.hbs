@@ -9,7 +9,7 @@
 
     <p style="margin-top:15px;">
         Don't have an account?
-        <a href="register.html">Register here</a>
+        <a href="/register">Register here</a>
     </p>
 </div>
 
@@ -22,7 +22,7 @@ function loginUser() {
     const storedPassword = localStorage.getItem("password");
 
     if (email === storedEmail && password === storedPassword) {
-        window.location.href = "index.html"; // Redirect changed
+        window.location.href = "/index"; // Redirect changed
     } else {
         alert("Invalid credentials.");
     }
