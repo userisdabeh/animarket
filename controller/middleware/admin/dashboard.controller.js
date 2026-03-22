@@ -74,14 +74,6 @@ exports.getUsersPage = async (req, res) => {
     });
 };
 
-exports.getTicketsPage = async (req, res) => {
-    res.render('partials/admin/tickets', {
-        layout: 'admin',
-        styles: ['/styles/admin/global.css', '/styles/admin/pages/tickets.css', '/styles/global.css'],
-        activeTickets: true
-    });
-};
-
 // Add products form from admin page
 exports.addProductAdmin = async (req, res) => {
     try {

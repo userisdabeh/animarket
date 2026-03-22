@@ -7,7 +7,6 @@ router.get('/dashboard', dashboardController.getDashboardDetails);
 router.get('/products', dashboardController.getProductsPage);
 router.get('/orders', dashboardController.getOrdersPage);
 router.get('/users', dashboardController.getUsersPage);
-router.get('/tickets', dashboardController.getTicketsPage);
 
 router.post('/products', dashboardController.addProductAdmin);
 router.post('/users', dashboardController.addUserAdmin);
