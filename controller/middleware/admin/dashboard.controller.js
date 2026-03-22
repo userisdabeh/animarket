@@ -1,4 +1,5 @@
 const db = require('../../db.js');
+const bcrypt = require('bcrypt');
 
 exports.getDashboardDetails = async (req, res) => {
     // 1. Fetch total new users this month
@@ -109,9 +110,10 @@ exports.addUserAdmin = async (req, res) => {
         const { userName, userEmail, userPassword, userIdNumber, userRole } = req.body;
         const is_verified = 1; // Admin-created accounts are automatically verified
         const account_status = 'Active'; // Admin-created accounts are active by default
+        const hashedPassword = await bcrypt.hash(userPassword, 10);
 
         const insertQuery = 'INSERT INTO users (username, email, password, id_number, role, is_verified, account_status) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        await db.query(insertQuery, [userName, userEmail, userPassword, userIdNumber, userRole, is_verified, account_status]);
+        await db.query(insertQuery, [userName, userEmail, hashedPassword, userIdNumber, userRole, is_verified, account_status]);
         res.redirect('/admin/users');
     } catch (error) {
         console.error("Error adding user:", error);
