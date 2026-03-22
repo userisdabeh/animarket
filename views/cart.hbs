@@ -4,6 +4,13 @@
             Your Cart & Purchase History
         </h2>
 
+        {{!-- NEW: The Visual Error Banner --}}
+        {{#if errorMessage}}
+            <div style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 12px; border-radius: 5px; margin-top: 15px; font-weight: bold; text-align: center;">
+                ⚠️ {{errorMessage}}
+            </div>
+        {{/if}}
+
         <div class="cart-list" style="margin-top: 20px;">
             {{#each orders}}
                 <div class="cart-item" style="background: #fff; border: 1px solid #ddd; padding: 20px; margin-bottom: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
