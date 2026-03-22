@@ -41,7 +41,19 @@
             </div>
         </div>
         
-        <small id="priceWarning" class="price-warning">*UAAP Tickets are strictly capped at ₱500.00.</small>
+        <small id="priceWarning" class="price-warning">*UAAP Tickets are strictly capped at ₱700.00.</small>
+
+        <div class="form-row">
+            <div class="form-group half-width">
+                <label for="stock">Total Quantity (Stock)</label>
+                <input type="number" id="stock" name="stock" placeholder="e.g. 100" min="1" required>
+            </div>
+
+            <div class="form-group half-width">
+                <label for="limitPerUser">Max per Buyer (Optional)</label>
+                <input type="number" id="limitPerUser" name="limitPerUser" placeholder="Leave empty for no limit" min="1">
+            </div>
+        </div>
 
         <div class="form-group">
             <label for="description">Description & Condition</label>
@@ -82,9 +94,9 @@
         const warning = document.getElementById("priceWarning");
         
         if (category === "Tickets") {
-            priceInput.max = "500";
+            priceInput.max = "700";
             warning.style.display = "block";
-            if (priceInput.value > 500) priceInput.value = 500;
+            if (priceInput.value > 700) priceInput.value = 700;
         } else {
             priceInput.removeAttribute("max");
             warning.style.display = "none";

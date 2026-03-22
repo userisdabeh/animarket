@@ -39,10 +39,20 @@
                 </div>
                 <div class="product-info">
                     <h4 class="product-title">{{this.product_name}}</h4>
+                    
                     <div class="product-price">
                         <span class="currency">₱</span>
                         <span class="price-amount">{{this.product_price}}</span>
                     </div>
+
+                    {{#if this.product_limit_per_user}}
+                        <div class="limit-note mt-1 mb-2">
+                            <span class="badge bg-warning text-dark border border-warning shadow-sm" style="font-size: 0.75rem;">
+                                 Limit: {{this.product_limit_per_user}} per buyer
+                            </span>
+                        </div>
+                    {{/if}}
+
                     <div class="product-footer">
                         <span class="stock">Stock: {{this.product_stock}}</span> 
                         
@@ -52,7 +62,7 @@
                                 <i class="fas fa-cart-plus"></i> Buy
                             </button>
                         </form> 
-                        </div>
+                    </div>
                 </div>
             </article>
             {{else}}

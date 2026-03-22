@@ -54,7 +54,8 @@ exports.getAllProducts = async (req, res) => {
 // 2. Handle "Sell an Item" form
 exports.createProduct = async (req, res) => {
     try {
-        const { productName, category, price, description, imageBase64 } = req.body;
+        // ADDED: Extract stock and limitPerUser from req.body
+        const { productName, category, price, description, imageBase64, stock, limitPerUser } = req.body;
         const sellerId = req.session?.userId; 
 
         if (!sellerId) {
@@ -62,17 +63,22 @@ exports.createProduct = async (req, res) => {
         }
 
         // Anti-Scalping Rule
-        if (category === 'Tickets' && parseFloat(price) > 500) {
-            return res.status(400).send("Anti-Scalping Rule: UAAP Tickets cannot exceed ₱500.");
+        if (category === 'Tickets' && parseFloat(price) > 700) {
+            return res.status(400).send("Anti-Scalping Rule: UAAP Tickets cannot exceed ₱700.");
         }
 
+        // FORMAT: Convert string inputs to integers, and handle empty optional limits
+        const parsedStock = parseInt(stock) || 1;
+        const parsedLimit = limitPerUser ? parseInt(limitPerUser) : null;
+
+        // UPDATED: Added product_stock and product_limit_per_user to the query
         const query = `
             INSERT INTO products 
-            (seller_id, product_name, product_category, product_price, product_description, product_stock, product_image) 
-            VALUES (?, ?, ?, ?, ?, 1, ?)
+            (seller_id, product_name, product_category, product_price, product_description, product_stock, product_limit_per_user, product_image) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
         
-        await db.query(query, [sellerId, productName, category, price, description, imageBase64]);
+        await db.query(query, [sellerId, productName, category, price, description, parsedStock, parsedLimit, imageBase64]);
         res.redirect('/');
     } catch (error) {
         console.error("Error creating product:", error);
