@@ -169,21 +169,16 @@ router.get('/profile', async (req, res) => {
 
     try {
         // 1. Fetch User Details
-        // ==========================================
-        // THE FIX: Notice the double brackets [[ ]] here!
-        // This instantly pulls the object out of the array.
         const [[userProfile]] = await db.query(
             `SELECT username, email, id_number, account_status, 
              DATE_FORMAT(created_at, "%M %d, %Y") as join_date 
              FROM users WHERE user_id = ?`,
             [req.session.userId]
         );
-        // ==========================================
 
-        // If userProfile is completely empty, send them to login
         if (!userProfile) return res.redirect('/login');
 
-        // 2. Fetch Transaction History 
+        // 2. Fetch Purchase History (Items they bought)
         const [transactions] = await db.query(`
             SELECT 
                 o.order_id, o.quantity, o.total_purchase_price, o.status, 
@@ -195,13 +190,57 @@ router.get('/profile', async (req, res) => {
             ORDER BY o.created_at DESC
         `, [req.session.userId]);
 
-        // 3. Render the profile page
+        // 3. Fetch All Listed Items (Sold and Unsold)
+        const [sales] = await db.query(`
+            SELECT 
+                p.product_id,  /* <--- NEW: We need this to know what to delete! */
+                p.product_name,
+                COALESCE(DATE_FORMAT(o.created_at, "%b %d, %Y"), DATE_FORMAT(p.created_at, "%b %d, %Y")) as display_date,
+                COALESCE(o.quantity, '-') as quantity,
+                COALESCE(o.total_purchase_price, p.product_price) as display_price,
+                COALESCE(u.username, 'N/A') AS buyer_username,
+                COALESCE(o.status, 'Available') AS status
+            FROM products p
+            LEFT JOIN orders o ON p.product_id = o.product_id
+            LEFT JOIN users u ON o.buyer_id = u.user_id
+            WHERE p.seller_id = ?
+            ORDER BY p.created_at DESC
+        `, [req.session.userId]);
+
+        // 4. Render the profile page
         res.render('profile', {
             layout: 'main',
             title: 'My Profile - Animarket',
-            userProfile: userProfile, // <--- Clean, simple, no required!
+            userProfile: userProfile, 
             transactions: transactions,
+            sales: sales, // <--- We pass the new sales data to Handlebars here!
             user: { id: req.session.userId, username: req.session.username } 
+        });
+
+        // 5. Delete a Product Listing
+        router.post('/delete-listing', async (req, res) => {
+            const { productId } = req.body;
+            const userId = req.session.userId;
+
+            if (!userId) return res.redirect('/login');
+
+            try {
+                // Safety Check: Make sure no one has ordered this item yet
+                const [orders] = await db.query('SELECT * FROM orders WHERE product_id = ?', [productId]);
+
+                if (orders.length > 0) {
+                    // If it exists in the orders table, someone bought it. Deny deletion.
+                    return res.redirect('/user/profile?error=cannottdelete');
+                }
+
+                // If it's safe, delete it from the products table (making sure the user actually owns it!)
+                await db.query('DELETE FROM products WHERE product_id = ? AND seller_id = ?', [productId, userId]);
+
+                res.redirect('/user/profile');
+            } catch (err) {
+                console.error("Delete Listing Error:", err);
+                res.redirect('/user/profile?error=failed');
+            }
         });
 
     } catch (err) {

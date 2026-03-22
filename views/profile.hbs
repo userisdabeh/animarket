@@ -24,7 +24,8 @@
         </div>
 
         <div class="col-md-8">
-            <div class="card shadow-sm border-0">
+            
+            <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-white border-bottom py-3">
                     <h5 class="mb-0 fw-bold"><i class="fas fa-history text-success me-2"></i>My Purchase History</h5>
                 </div>
@@ -72,6 +73,77 @@
                     {{/if}}
                 </div>
             </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-store text-primary me-2"></i>My Listings & Sales</h5>
+                </div>
+                <div class="card-body p-0">
+                    {{#if sales.length}}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Date</th>
+                                        <th>Item</th>
+                                        <th>Qty Sold</th>
+                                        <th>Price/Earnings</th>
+                                        <th>Buyer Username</th>
+                                        <th>Status</th>
+                                        <th>Action</th> </tr>
+                                </thead>
+                                <tbody>
+                                    {{#each sales}}
+                                    <tr>
+                                        <td class="ps-4 text-muted">{{this.display_date}}</td>
+                                        <td class="fw-semibold">{{this.product_name}}</td>
+                                        <td>{{this.quantity}}</td>
+                                        <td class="fw-bold text-success">₱{{this.display_price}}</td>
+                                        <td>
+                                            <span class="badge {{#if (eq this.buyer_username 'N/A')}}bg-light text-muted border{{else}}bg-secondary{{/if}}">
+                                                {{this.buyer_username}}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge 
+                                                {{#if (eq this.status 'Completed')}}bg-success
+                                                {{else if (eq this.status 'Pending')}}bg-warning text-dark
+                                                {{else if (eq this.status 'Available')}}bg-info text-dark
+                                                {{else if (eq this.status 'Cancelled')}}bg-danger
+                                                {{else}}bg-primary{{/if}}">
+                                                {{this.status}}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {{#if (eq this.status 'Available')}}
+                                                <form action="/user/delete-listing" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to delete this listing?');">
+                                                    <input type="hidden" name="productId" value="{{this.product_id}}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Listing">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            {{else}}
+                                                <button class="btn btn-sm btn-outline-secondary border-0" disabled title="Cannot delete items that have been ordered">
+                                                    <i class="fas fa-lock"></i>
+                                                </button>
+                                            {{/if}}
+                                        </td>
+                                    </tr>
+                                    {{/each}}
+                                </tbody>
+                            </table>
+                        </div>
+                    {{else}}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-store-slash fs-1 mb-3 text-light"></i>
+                            <h5>No items listed yet</h5>
+                            <p>When you post an item for sale, you can track its status here!</p>
+                            <a href="/user/sell" class="btn btn-outline-primary mt-2">Post an Item</a>
+                        </div>
+                    {{/if}}
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
