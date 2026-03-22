@@ -56,17 +56,56 @@ router.post('/', async (req, res) => {
                 });
             }
 
+            if (user.role === 'User' && user.account_status === 'Suspended') {
+                return res.render('login', {
+                    layout: 'main',
+                    stylesheets: ['global.css', 'style.css'],
+                    errorMessage: 'Your account has been suspended. Please contact support for assistance.'
+                });
+            }
+
+            if (user.role === 'User' && user.account_status === 'Deactivated') {
+                return res.render('login', {
+                    layout: 'main',
+                    stylesheets: ['global.css', 'style.css'],
+                    errorMessage: 'Your account has been deactivated. Please contact support for assistance.'
+                });
+            }
+
+            if (user.role === 'User' && user.account_status === 'Banned') {
+                return res.render('login', {
+                    layout: 'main',
+                    stylesheets: ['global.css', 'style.css'],
+                    errorMessage: 'Your account has been banned. Please contact support for assistance.'
+                });
+            }
+
+            if (user.role === 'Admin' && user.account_status !== 'Active') {
+                return res.render('login', {
+                    layout: 'main',
+                    stylesheets: ['global.css', 'style.css'],
+                    errorMessage: 'Your admin account is not active. Please contact support for assistance.'
+                });
+            }
+
             // 6. If verified AND password matches, log them in!
             req.session.userId = user.user_id; 
             req.session.email = user.email;
             req.session.username = user.username;
             req.session.isAdmin = user.role === 'Admin'; // Store admin status in session
-            
-            if (user.role === 'Admin') {
-                return res.redirect('/admin/dashboard');
-            } else {
-                return res.redirect('/');
-            }
+
+            req.session.save(err => {
+                if (err) {
+                    console.error("Session Save Error: ", err);
+                    return res.status(500).send("Server Error");
+                }
+                            
+                if (user.role === 'Admin') {
+                    return res.redirect('/admin/dashboard');
+                } else {
+                    return res.redirect('/');
+                }
+            });
 
         } else {
             return res.render('login', { 

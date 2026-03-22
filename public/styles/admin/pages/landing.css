@@ -1,0 +1,25 @@
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.summary-card {
+    border: 1px solid darkgreen;
+    padding: 16px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.summary-header {
+    font-weight: 700;
+}
+
+.summary-data {
+    font-size: 48px;
+    font-weight: bold;
+}
