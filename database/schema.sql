@@ -4,21 +4,30 @@ USE animarket;
 CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,  -- this should be @dlsu.edu.ph domain only
+    email VARCHAR(255) NOT NULL UNIQUE, 
     password VARCHAR(255) NOT NULL,
-    id_number INT NOT NULL UNIQUE, -- for user identification
-    account_status ENUM('Active', 'Suspended', 'Banned', 'Under Investigation', 'Deactivated') NOT NULL DEFAULT 'Active', -- users will not be deleted but will just be marked deactivated
+    id_number INT NOT NULL UNIQUE, 
+    account_status ENUM('Active', 'Suspended', 'Banned', 'Under Investigation', 'Deactivated') NOT NULL DEFAULT 'Active',
+    role ENUM('User', 'Admin') NOT NULL DEFAULT 'User',
+    
+    is_verified BOOLEAN DEFAULT FALSE,
+    verification_token VARCHAR(255),
+    
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    
+    CONSTRAINT chk_email_domain CHECK (email LIKE '%@dlsu.edu.ph')
 );
 
 CREATE TABLE IF NOT EXISTS products (
-	product_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
     seller_id INT NOT NULL,
     product_name VARCHAR(255) NOT NULL,
+    product_category VARCHAR(50) NOT NULL, -- ADDED FOR FILTERING
     product_description TEXT NOT NULL,
+    product_image LONGTEXT,                -- ADDED FOR BASE64 IMAGES
     product_stock INT UNSIGNED NOT NULL,
-    product_limit_per_user INT UNSIGNED DEFAULT NULL, -- main key for anti-scalping feature
+    product_limit_per_user INT UNSIGNED DEFAULT NULL, 
     product_price DECIMAL(10,2) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

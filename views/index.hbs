@@ -1,85 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
+<div class="container mb-4 mt-3">
+    <div class="search-container bg-white p-3 rounded shadow-sm border">
+        <form action="/" method="GET" class="d-flex w-100">
+            <input type="text" name="search" class="form-control" value="{{searchQuery}}" placeholder="Search products, DLSU merch, or books...">
+            <select name="category" class="form-select w-auto mx-2">
+                <option value="">All Categories</option>
+                <option value="Academic">Academic</option>
+                <option value="Uniforms">Uniforms</option>
+                <option value="Merch">Merch</option>
+                <option value="Tickets">Tickets</option>
+            </select>
+            <button type="submit" class="btn btn-success px-4 fw-bold">Search</button>
+        </form>
+    </div>
+</div>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Animarket</title>
-    <link rel="stylesheet" href="/style.css"> </head>
-<body>
-
-    <header class="top-bar">
-        <div class="nav-container">
-            <div class="logo">🏹 Animarket</div>
-            <div class="search-container">
-                <input type="text" placeholder="Search for products, sellers, or DLSU merch...">
-                <button type="button" class="btn-search">Search</button>
-            </div>
-            <div class="user-actions">
-                <a href="/login" class="nav-link">Login</a>
-                <a href="/register" class="nav-link">Sign Up</a>
-                <a href="/wishlist" class="nav-link"> Wishlist</a>
-            </div>
+<main class="main-content">
+    <section class="hero-banner">
+        <div class="banner-content">
+            <h2>Welcome to Animarket</h2>
+            <p>The exclusive marketplace for DLSU Taft students and faculty.</p>
         </div>
-    </header>
+    </section>
 
-    <main class="main-content">
-        <section class="hero-banner">
-            <div class="banner-content">
-                <h2>Welcome to Animarket</h2>
-                <p>The exclusive marketplace for DLSU Taft students and faculty.</p>
-            </div>
-        </section>
-
-        <section class="product-feed">
-            <div class="section-header">
-                <h3>Daily Discoveries</h3>
-            </div>
-            
-            <div class="product-grid">
-                
-                <article class="product-card">
-                    <div class="product-image">
-                        <div class="img-placeholder">Image</div>
-                    </div>
-                    <div class="product-info">
-                        <h4 class="product-title">DLSU Lanyard 2026</h4>
-                        <div class="product-price">
-                            <span class="currency">₱</span>
-                            <span class="price-amount">150.00</span>
-                        </div>
-                        <div class="product-footer">
-                            <span class="stock">Stock: 25</span> <button class="btn-wishlist">Add</button>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="product-card">
-                    <div class="product-image">
-                        <div class="img-placeholder">Image</div>
-                    </div>
-                    <div class="product-info">
-                        <h4 class="product-title">Pre-loved Accounting Book</h4>
-                        <div class="product-price">
-                            <span class="currency">₱</span>
-                            <span class="price-amount">450.00</span>
-                        </div>
-                        <div class="product-footer">
-                            <span class="stock">Stock: 1</span>
-                            <button class="btn-wishlist"> Add</button>
-                        </div>
-                    </div>
-                </article>
-
-            </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="footer-content">
-            <p>&copy; 2026 Animarket. DLSU Taft Campus Exclusive.</p>
+    <section class="product-feed">
+        <div class="section-header">
+            <h3>Daily Discoveries</h3>
         </div>
-    </footer>
+        
+        <div class="product-grid">
+            {{#each products}}
+            <article class="product-card">
+                <div class="product-image">
+                    {{#if this.product_image}}
+                        <img src="{{this.product_image}}" alt="{{this.product_name}}" style="width: 100%; height: 200px; object-fit: cover;">
+                    {{else}}
+                        <div class="img-placeholder">No Image</div>
+                    {{/if}}
+                </div>
+                <div class="product-info">
+                    <h4 class="product-title">{{this.product_name}}</h4>
+                    
+                    <div class="product-price">
+                        <span class="currency">₱</span>
+                        <span class="price-amount">{{this.product_price}}</span>
+                    </div>
 
-</body>
-</html>
+                    {{#if this.product_limit_per_user}}
+                        <div class="limit-note mt-1 mb-2">
+                            <span class="badge bg-warning text-dark border border-warning shadow-sm" style="font-size: 0.75rem;">
+                                 Limit: {{this.product_limit_per_user}} per buyer
+                            </span>
+                        </div>
+                    {{/if}}
+
+                    <div class="product-footer">
+                        <span class="stock">Stock: {{this.product_stock}}</span> 
+                        
+                        <form action="/buy" method="POST" style="display:inline;">
+                            <input type="hidden" name="productId" value="{{this.product_id}}">
+                            <button type="submit" class="btn-wishlist">
+                                <i class="fas fa-cart-plus"></i> Buy
+                            </button>
+                        </form> 
+                    </div>
+                </div>
+            </article>
+            {{else}}
+            <p style="text-align: center; width: 100%;">No products found matching your search.</p>
+            {{/each}}
+        </div>
+    </section>
+</main>
