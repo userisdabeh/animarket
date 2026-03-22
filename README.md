@@ -8,7 +8,7 @@
 - Sulit, Raphael
 - Tuazon, Brent Ulysses
 
-## Howw to run the application locally:
+## How to run the application locally:
 1. Open the application via Command Prompt
 2. Install the necessary packages using the following command: "npm install"
 3. Configure your environment variable file. Please contact the developers for a guide on howw to setup your .env file
