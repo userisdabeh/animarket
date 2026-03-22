@@ -60,7 +60,14 @@ router.post('/', async (req, res) => {
             req.session.userId = user.user_id; 
             req.session.email = user.email;
             req.session.username = user.username;
-            return res.redirect('/');
+            req.session.isAdmin = user.role === 'Admin'; // Store admin status in session
+            
+            if (user.role === 'Admin') {
+                return res.redirect('/admin/dashboard');
+            } else {
+                return res.redirect('/');
+            }
+
         } else {
             return res.render('login', { 
                 layout: 'main', 
