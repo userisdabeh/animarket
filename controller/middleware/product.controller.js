@@ -51,7 +51,7 @@ exports.getAllProducts = async (req, res) => {
     }
 };
 
-// 2. Handle "Sell an Item" form
+// 2. Handle "Sell an Item" form (Groupmate's New Update!)
 exports.createProduct = async (req, res) => {
     try {
         // ADDED: Extract stock and limitPerUser from req.body
@@ -62,7 +62,7 @@ exports.createProduct = async (req, res) => {
             return res.redirect('/login?error=You must be logged in to sell.');
         }
 
-        // Anti-Scalping Rule
+        // Anti-Scalping Rule (Updated to 700)
         if (category === 'Tickets' && parseFloat(price) > 700) {
             return res.status(400).send("Anti-Scalping Rule: UAAP Tickets cannot exceed ₱700.");
         }
@@ -86,7 +86,7 @@ exports.createProduct = async (req, res) => {
     }
 };
 
-// 3. Logic for the "Buy/Reserve" Requirement
+// 3. Logic for the "Buy/Reserve" Requirement (Restored our safe math and limits!)
 exports.buyProduct = async (req, res) => {
     const { productId } = req.body;
     const buyerId = req.session.userId;
@@ -94,11 +94,27 @@ exports.buyProduct = async (req, res) => {
     if (!buyerId) return res.redirect('/login?error=Please login');
 
     try {
-        const [products] = await db.query('SELECT seller_id, product_price, product_stock FROM products WHERE product_id = ?', [productId]);
+        // Restored: Fetching product_limit_per_user
+        const [products] = await db.query('SELECT seller_id, product_price, product_stock, product_limit_per_user FROM products WHERE product_id = ?', [productId]);
         const product = products[0];
 
         if (!product || product.product_stock <= 0) return res.status(400).send("Out of stock");
 
+        // Restored: STRICT LIMIT CHECK
+        if (product.product_limit_per_user !== null) {
+            const limit = Number(product.product_limit_per_user);
+            const [userHistory] = await db.query(
+                'SELECT SUM(quantity) as total_bought FROM orders WHERE buyer_id = ? AND product_id = ? AND status != "Cancelled"',
+                [buyerId, productId]
+            );
+            
+            const totalBought = Number(userHistory[0].total_bought || 0);
+            
+            if (totalBought >= limit) {
+                return res.redirect('/user/cart?error=LimitReached'); 
+            }
+        }
+        
         // CHECK: Does item already exist in cart?
         const [existing] = await db.query(
             'SELECT order_id, quantity FROM orders WHERE buyer_id = ? AND product_id = ? AND status = "Pending"',
@@ -106,10 +122,14 @@ exports.buyProduct = async (req, res) => {
         );
 
         if (existing.length > 0) {
-            // Update quantity of the EXISTING box
+            // Restored: Safe Node.js Math for existing cart items
+            const currentQty = existing[0].quantity;
+            const newQty = currentQty + 1;
+            const newTotal = newQty * product.product_price;
+            
             await db.query(
-                'UPDATE orders SET quantity = quantity + 1, total_purchase_price = (quantity + 1) * ? WHERE order_id = ?',
-                [product.product_price, existing[0].order_id]
+                'UPDATE orders SET quantity = ?, total_purchase_price = ? WHERE order_id = ?',
+                [newQty, newTotal, existing[0].order_id]
             );
         } else {
             // Create a NEW box only if it's not there yet
@@ -123,6 +143,7 @@ exports.buyProduct = async (req, res) => {
         await db.query('UPDATE products SET product_stock = product_stock - 1 WHERE product_id = ?', [productId]);
         res.redirect('/user/cart');
     } catch (error) {
-        res.status(500).send("Error");
+        console.error("Buy Product Error:", error);
+        res.status(500).send("Error adding to cart.");
     }
 };
