@@ -1,3 +1,5 @@
+/* To reset the bootstrap styles */
+
 body {
     display: flex;
     flex-wrap: wrap;
@@ -17,8 +19,16 @@ nav {
     padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
     position: fixed;
+    top: 0;
+    left: 0;
+    justify-content: space-between;
+}
+
+.nav-top {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 .nav-links {
@@ -40,8 +50,7 @@ nav {
     padding: 4px 8px;
 }
 
-.nav-link a svg,
-.logout-btn svg {
+.nav-link a svg {
     display: block;
     fill: white;
 }
@@ -67,12 +76,23 @@ nav {
 .logout-btn {
     display: flex;
     align-items: center;
-    background-color: darkgreen;
-    color: white;
+    background-color: white;
+    color: black;
     border: 1px solid white;
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
+    display: flex;
+    gap: 6px;
+}
+
+.logout-btn:hover {
+    background-color: #efefef;
+}
+
+.logout-icon {
+    display: block;
+    fill: black;
 }
 
 main {
@@ -80,4 +100,27 @@ main {
     min-height: 100vh;
     margin-left: 12%;
     padding: 24px;
+}
+
+.top-bar {
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.search-and-button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.disabled-text {
+    pointer-events: none;
+    user-select: none;
+    color: #999999;
 }

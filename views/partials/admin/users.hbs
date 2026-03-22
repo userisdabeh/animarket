@@ -1,0 +1,138 @@
+<section class="top-bar">
+    <h1>AniMarket User Management</h1>
+</section>
+<section class="search-and-button">
+    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addUserModal">Add New User</button>
+</section>
+<section class="users-table">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">User ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">Email</th>
+                <th scope="col">ID Number</th>
+                <th scope="col">Role</th>
+                <th scope="col">Account Status</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#if users.length}}
+                {{#each users}}
+                    <tr>
+                        <th scope="row">{{this.user_id}}</th>
+                        <td>{{this.username}}</td>
+                        <td>{{this.email}}</td>
+                        <td>{{this.id_number}}</td>
+                        <td>{{this.role}}</td>
+                        <td>{{this.account_status}}</td>
+                        <td>
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal" data-bs-userId="{{this.user_id}}" data-bs-username="{{this.username}}" data-bs-email="{{this.email}}" data-bs-role="{{this.role}}" data-bs-account-status="{{this.account_status}}">Edit</button>
+                        </td>
+                    </tr>
+                {{/each}}
+            {{else}}
+                <tr>
+                    <td colspan="5" class="text-center">No users found.</td>
+                </tr>
+            {{/if}}
+        </tbody>
+    </table>
+</section>
+
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addUserModalLabel">Add New User</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/admin/users" method="post" id="addUserFormAdmin">
+                    <div class="mb-3">
+                        <label for="userName" class="form-label">Username <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="userName" name="userName" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="userEmail" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="userEmail" name="userEmail" required>
+                        </div>
+                        <div class="col">
+                            <label for="userPassword" class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="userPassword" name="userPassword" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="userIdNumber" class="form-label">ID Number <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="userIdNumber" name="userIdNumber" required min="1">
+                        </div>
+                        <div class="col">
+                            <label for="userRole" class="form-label">Role <span class="text-danger">*</span></label>
+                            <select name="userRole" id="userRole" class="form-control" required>
+                                <option value="" disabled selected>Select...</option>
+                                <option value="Admin">Admin</option>
+                                <option value="User">User</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="addUserFormAdmin" class="btn btn-primary" form="addUserFormAdmin">Add User</button>
+             </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editUserModalLabel">Edit User</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/admin/users/update" method="post" id="editUsersFormAdmin">
+                    <input type="hidden" id="editUserId" name="userId">
+                    <div class="mb-3">
+                        <label for="editUserName" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="editUserName" name="userName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editUserEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editUserEmail" name="userEmail" readonly>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="editUserRole" class="form-label">Role</label>
+                            <select name="editUserRole" id="editUserRole" class="form-control">
+                                <option value="Admin">Admin</option>
+                                <option value="User">User</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="editUserStatus" class="form-label">Status</label>
+                            <select name="editUserStatus" id="editUserStatus" class="form-control">
+                                <option value="Active">Active</option>
+                                <option value="Suspended">Suspended</option>
+                                <option value="Banned">Banned</option>
+                                <option value="Under Investigation">Under Investigation</option>
+                                <option value="Deactivated">Deactivated</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="editUsersFormAdmin" class="btn btn-primary" form="editUsersFormAdmin">Save Changes</button>
+             </div>
+            </div>
+        </div>
+    </div>
+</div>

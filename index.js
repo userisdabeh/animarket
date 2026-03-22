@@ -40,8 +40,8 @@ app.use(express.json());
 */
 
 // Change these two lines:
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 // Setup session management for logging in users
 app.use(session({
