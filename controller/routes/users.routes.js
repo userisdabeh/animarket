@@ -4,18 +4,9 @@ const db = require('../db');
 const nodemailer = require('nodemailer'); 
 
 // ==========================================
-// FIX: Force this file to load the .env variables (Inspired by your friend's code!)
+// FIX: Force this file to load the .env variables
 require('dotenv').config(); 
 // ==========================================
-
-// Create the Email Transporter using your .env credentials
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
 
 // 1. Render Sell Page
 router.get('/sell', (req, res) => {
@@ -47,11 +38,15 @@ router.get('/cart', async (req, res) => {
             isPending: order.status === 'Pending'
         }));
 
+        // NEW: Check if the URL has an error and prepare a message
+        const errorMessage = req.query.error === 'LimitReached' ? "You have reached the maximum purchase limit for this item." : null;
+
         res.render('cart', { 
             layout: 'main',
             title: 'Your Cart - Animarket',
             stylesheets: ['global.css', 'style.css'],
             orders: processedOrders, 
+            errorMessage: errorMessage, // <-- Pass it to the view
             user: { id: req.session.userId, username: req.session.username } 
         });
     } catch (error) {
@@ -75,14 +70,43 @@ router.post('/cart/update-quantity', async (req, res) => {
         const priceEach = order[0].price_at_purchase;
 
         if (action === 'add') {
-            const [prod] = await db.query('SELECT product_stock FROM products WHERE product_id = ?', [productId]);
-            if (prod[0].product_stock > 0) {
-                await db.query('UPDATE orders SET quantity = quantity + 1, total_purchase_price = (quantity + 1) * ? WHERE order_id = ?', [priceEach, orderId]);
+            const [prod] = await db.query('SELECT product_stock, product_limit_per_user FROM products WHERE product_id = ?', [productId]);
+            const product = prod[0];
+
+            if (product && product.product_stock > 0) {
+                // ==========================================
+                // STRICT LIMIT CHECK FOR CART '+' BUTTON
+                // ==========================================
+                if (product.product_limit_per_user !== null) {
+                    const limit = Number(product.product_limit_per_user);
+                    const [userHistory] = await db.query(
+                        'SELECT SUM(quantity) as total_bought FROM orders WHERE buyer_id = ? AND product_id = ? AND status != "Cancelled"',
+                        [userId, productId]
+                    );
+                    const totalBought = Number(userHistory[0].total_bought || 0);
+
+                    console.log(`[Cart '+' Check] Owned: ${totalBought}, Limit: ${limit}`);
+
+                    if (totalBought >= limit) {
+                        console.log("❌ BLOCKED: User tried to bypass limit using the + button.");
+                        // Redirect with error to trigger the visual alert!
+                        return res.redirect('/user/cart?error=LimitReached');
+                    }
+                }
+                // ==========================================
+
+                // FIX: Node.js Math (Safe from SQL evaluation quirks)
+                const newQty = currentQty + 1;
+                const newTotal = newQty * priceEach;
+                await db.query('UPDATE orders SET quantity = ?, total_purchase_price = ? WHERE order_id = ?', [newQty, newTotal, orderId]);
                 await db.query('UPDATE products SET product_stock = product_stock - 1 WHERE product_id = ?', [productId]);
             }
         } else if (action === 'subtract') {
             if (currentQty > 1) {
-                await db.query('UPDATE orders SET quantity = quantity - 1, total_purchase_price = (quantity - 1) * ? WHERE order_id = ?', [priceEach, orderId]);
+                // FIX: Node.js Math (Safe from SQL evaluation quirks)
+                const newQty = currentQty - 1;
+                const newTotal = newQty * priceEach;
+                await db.query('UPDATE orders SET quantity = ?, total_purchase_price = ? WHERE order_id = ?', [newQty, newTotal, orderId]);
             } else {
                 await db.query('DELETE FROM orders WHERE order_id = ?', [orderId]);
             }
@@ -103,7 +127,14 @@ router.post('/cart/checkout', async (req, res) => {
     if (!userId) return res.redirect('/login');
 
     try {
-        // Step 1: Fetch order details AND the buyer's email from the database
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
+
         const [orderData] = await db.query(`
             SELECT o.*, p.product_name, u.email as buyer_email, u.username 
             FROM orders o
@@ -115,10 +146,8 @@ router.post('/cart/checkout', async (req, res) => {
         if (!orderData.length) return res.redirect('/user/cart');
         const order = orderData[0];
 
-        // Step 2: Mark the order as Completed
         await db.query('UPDATE orders SET status = "Completed" WHERE order_id = ? AND buyer_id = ?', [orderId, userId]);
 
-        // Step 3: Draft the Email Receipt
         const mailOptions = {
             from: `"Animarket" <${process.env.EMAIL_USER}>`,
             to: order.buyer_email,
@@ -128,9 +157,7 @@ router.post('/cart/checkout', async (req, res) => {
                     <div style="text-align: center; padding-bottom: 20px; border-bottom: 2px solid #006a4e;">
                         <h2 style="color: #006a4e; margin: 0;">Thank you for your purchase, ${order.username}!</h2>
                     </div>
-                    
                     <p style="color: #333; font-size: 16px; margin-top: 20px;">Here is your digital receipt for your recent transaction on Animarket:</p>
-
                     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
                         <tr style="background-color: #f8f9fa; border-bottom: 2px solid #006a4e;">
                             <th style="padding: 12px; text-align: left; color: #333;">Item</th>
@@ -143,7 +170,6 @@ router.post('/cart/checkout', async (req, res) => {
                             <td style="padding: 15px; text-align: right; border-bottom: 1px solid #eee; font-weight: bold; color: #006a4e; font-size: 16px;">₱${order.total_purchase_price}</td>
                         </tr>
                     </table>
-
                     <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; text-align: center;">
                         <p style="font-size: 14px; color: #666; margin: 5px 0;">Please coordinate with the seller to arrange your meetup on campus.</p>
                         <p style="font-size: 14px; color: #006a4e; font-weight: bold; margin: 5px 0;">Animo La Salle! 🏹</p>
@@ -152,7 +178,6 @@ router.post('/cart/checkout', async (req, res) => {
             `
         };
 
-        // Step 4: Send the Email (using your friend's exact tracking method)
         console.log(`Attempting to send digital receipt to: ${order.buyer_email}...`);
         const info = await transporter.sendMail(mailOptions);
         console.log(`Success! Receipt sent. Message ID: ${info.messageId}`);
@@ -164,11 +189,11 @@ router.post('/cart/checkout', async (req, res) => {
     }
 });
 
+// 5. User Profile Route
 router.get('/profile', async (req, res) => {
     if (!req.session.userId) return res.redirect('/login');
 
     try {
-        // 1. Fetch User Details
         const [[userProfile]] = await db.query(
             `SELECT username, email, id_number, account_status, 
              DATE_FORMAT(created_at, "%M %d, %Y") as join_date 
@@ -178,7 +203,6 @@ router.get('/profile', async (req, res) => {
 
         if (!userProfile) return res.redirect('/login');
 
-        // 2. Fetch Purchase History (Items they bought)
         const [transactions] = await db.query(`
             SELECT 
                 o.order_id, o.quantity, o.total_purchase_price, o.status, 
@@ -190,10 +214,9 @@ router.get('/profile', async (req, res) => {
             ORDER BY o.created_at DESC
         `, [req.session.userId]);
 
-        // 3. Fetch All Listed Items (Sold and Unsold)
         const [sales] = await db.query(`
             SELECT 
-                p.product_id,  /* <--- NEW: We need this to know what to delete! */
+                p.product_id,
                 p.product_name,
                 COALESCE(DATE_FORMAT(o.created_at, "%b %d, %Y"), DATE_FORMAT(p.created_at, "%b %d, %Y")) as display_date,
                 COALESCE(o.quantity, '-') as quantity,
@@ -207,45 +230,40 @@ router.get('/profile', async (req, res) => {
             ORDER BY p.created_at DESC
         `, [req.session.userId]);
 
-        // 4. Render the profile page
         res.render('profile', {
             layout: 'main',
             title: 'My Profile - Animarket',
             userProfile: userProfile, 
             transactions: transactions,
-            sales: sales, // <--- We pass the new sales data to Handlebars here!
+            sales: sales,
             user: { id: req.session.userId, username: req.session.username } 
-        });
-
-        // 5. Delete a Product Listing
-        router.post('/delete-listing', async (req, res) => {
-            const { productId } = req.body;
-            const userId = req.session.userId;
-
-            if (!userId) return res.redirect('/login');
-
-            try {
-                // Safety Check: Make sure no one has ordered this item yet
-                const [orders] = await db.query('SELECT * FROM orders WHERE product_id = ?', [productId]);
-
-                if (orders.length > 0) {
-                    // If it exists in the orders table, someone bought it. Deny deletion.
-                    return res.redirect('/user/profile?error=cannottdelete');
-                }
-
-                // If it's safe, delete it from the products table (making sure the user actually owns it!)
-                await db.query('DELETE FROM products WHERE product_id = ? AND seller_id = ?', [productId, userId]);
-
-                res.redirect('/user/profile');
-            } catch (err) {
-                console.error("Delete Listing Error:", err);
-                res.redirect('/user/profile?error=failed');
-            }
         });
 
     } catch (err) {
         console.error("Profile Error:", err);
         res.status(500).send("Error loading profile data.");
+    }
+});
+
+// 6. Delete Listing
+router.post('/delete-listing', async (req, res) => {
+    const { productId } = req.body;
+    const userId = req.session.userId;
+
+    if (!userId) return res.redirect('/login');
+
+    try {
+        const [orders] = await db.query('SELECT * FROM orders WHERE product_id = ?', [productId]);
+
+        if (orders.length > 0) {
+            return res.redirect('/user/profile?error=cannottdelete');
+        }
+
+        await db.query('DELETE FROM products WHERE product_id = ? AND seller_id = ?', [productId, userId]);
+        res.redirect('/user/profile');
+    } catch (err) {
+        console.error("Delete Listing Error:", err);
+        res.redirect('/user/profile?error=failed');
     }
 });
 
