@@ -28,7 +28,7 @@
                             <i class="fas fa-shopping-cart"></i> Cart
                         </a>
                         <a href="/user/sell" class="btn btn-success fw-bold shadow-sm">+ Post Item</a>
-                        <span class="text-muted fw-semibold">Hi, {{user.username}}</span>
+                        <a href="/user/profile" class="text-success text-decoration-none fw-bold fs-5" style="transition: opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">Hi, {{user.username}}</a>
                         <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
                     {{else}}
                         <a href="/login" class="text-decoration-none text-dark fw-semibold">Login</a>

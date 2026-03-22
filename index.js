@@ -12,6 +12,12 @@ const PORT = process.env.PORT || 3000;
 // ==========================================
 // 1. Template Engine Setup (Handlebars)
 // ==========================================
+
+// NEW: Register the 'eq' helper so your profile badges change colors!
+hbs.registerHelper('eq', function (v1, v2) {
+    return v1 === v2;
+});
+
 app.engine('hbs', hbs.express4({
   partialsDir: path.join(__dirname, 'views/partials'),
   layoutsDir: path.join(__dirname, 'views/layouts'),

@@ -164,4 +164,50 @@ router.post('/cart/checkout', async (req, res) => {
     }
 });
 
+router.get('/profile', async (req, res) => {
+    if (!req.session.userId) return res.redirect('/login');
+
+    try {
+        // 1. Fetch User Details
+        // ==========================================
+        // THE FIX: Notice the double brackets [[ ]] here!
+        // This instantly pulls the object out of the array.
+        const [[userProfile]] = await db.query(
+            `SELECT username, email, id_number, account_status, 
+             DATE_FORMAT(created_at, "%M %d, %Y") as join_date 
+             FROM users WHERE user_id = ?`,
+            [req.session.userId]
+        );
+        // ==========================================
+
+        // If userProfile is completely empty, send them to login
+        if (!userProfile) return res.redirect('/login');
+
+        // 2. Fetch Transaction History 
+        const [transactions] = await db.query(`
+            SELECT 
+                o.order_id, o.quantity, o.total_purchase_price, o.status, 
+                o.payment_status, DATE_FORMAT(o.created_at, "%b %d, %Y") as order_date,
+                p.product_name 
+            FROM orders o
+            JOIN products p ON o.product_id = p.product_id
+            WHERE o.buyer_id = ?
+            ORDER BY o.created_at DESC
+        `, [req.session.userId]);
+
+        // 3. Render the profile page
+        res.render('profile', {
+            layout: 'main',
+            title: 'My Profile - Animarket',
+            userProfile: userProfile, // <--- Clean, simple, no required!
+            transactions: transactions,
+            user: { id: req.session.userId, username: req.session.username } 
+        });
+
+    } catch (err) {
+        console.error("Profile Error:", err);
+        res.status(500).send("Error loading profile data.");
+    }
+});
+
 module.exports = router;
